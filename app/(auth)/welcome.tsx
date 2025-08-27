@@ -3,18 +3,20 @@ import ScreenWrapper from '@/components/ScreenWrapper'
 import Typo from '@/components/Typo'
 import { colors, spacingX, spacingY } from '@/constants/theme'
 import { verticalScale } from '@/utils/styling'
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { StyleSheet, TouchableOpacity, View } from 'react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeInDown, FadeInLeft } from 'react-native-reanimated'
 
 const Welcome = () => {
+  const router = useRouter();
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         {/* Login Button & Image */}
 
         <View>
-          <TouchableOpacity style={styles.loginButton}>
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.loginButton}>
             <Typo fontWeight={"500"}>Sign In</Typo>
           </TouchableOpacity>
 
@@ -24,22 +26,22 @@ const Welcome = () => {
 
         <View style={styles.footer}>
 
-          <View style={{ alignItems: "center" }}>
+          <Animated.View entering={FadeInDown.duration(1000).delay(50).springify().damping(12)} style={{ alignItems: "center" }}>
             <Typo size={25} fontWeight={"800"}>Always Take Control</Typo>
             <Typo size={25} fontWeight={"800"}>of Your Finances</Typo>
-          </View>
+          </Animated.View>
 
-          <View style={{ alignItems: "center" }}>
+          <Animated.View entering={FadeInDown.duration(1000).delay(100).springify().damping(12)} style={{ alignItems: "center" }}>
             <Typo size={15} color={colors.textLight}>Finances must be arranged to set a better</Typo>
             <Typo size={15} color={colors.textLight}>lifestyle in future</Typo>
-          </View>
+          </Animated.View>
 
-          <View style={styles.buttonContainer}>
+          <Animated.View entering={FadeInDown.duration(1000).delay(200).springify().damping(12)} style={styles.buttonContainer}>
             {/* Button */}
-            <Button>
+            <Button onPress={() => router.push('/(auth)/register')}>
               <Typo size={15} color={colors.neutral900} fontWeight={"600"}>Get Started</Typo>
             </Button>
-          </View>
+          </Animated.View>
 
         </View>
 
