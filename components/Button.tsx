@@ -7,10 +7,12 @@ import Loading from './Loading'
 
 const Button = ({ style, onPress, loading = false, children }: CustomButtonProps) => {
     if (loading) {
-        <View style={[styles.button, style, { backgroundColor: "transparent" }]}>
-            {/* Loading */}
-            <Loading />
-        </View>
+        return (
+            <View style={[styles.button, style, { backgroundColor: "transparent" }]}>
+                {/* Loading */}
+                <Loading size="large" />
+            </View>
+        )
     }
     return (
         <TouchableOpacity onPress={onPress} style={[styles.button, style]}>

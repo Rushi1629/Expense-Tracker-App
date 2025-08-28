@@ -3,7 +3,7 @@ import { AuthContextType, UserType } from "@/types";
 import { useRouter } from "expo-router";
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -12,24 +12,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
     const [user, setUser] = useState<UserType>(null);
 
+    const [loading, setLoading] = useState(true);
+
     const router = useRouter();
+
+    const getErrorMessage = (code: string) => {
+        switch (code) {
+            case "auth/user-not-found": return "No user found with this email.";
+            case "auth/wrong-password": return "Incorrect password.";
+            case "auth/invalid-credential": return "Invalid credentials.";
+            case "auth/email-already-in-use": return "Email already registered.";
+            case "auth/invalid-email": return "Invalid email format.";
+            case "auth/weak-password": return "Password should be at least 6 characters.";
+            default: return "Something went wrong. Try again.";
+        }
+    };
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (firebaseUser) => {
 
-            console.log("Firebase User: ", firebaseUser);
+            // console.log("Firebase User: ", firebaseUser);
             if (firebaseUser) {
                 setUser({
                     uid: firebaseUser?.uid,
                     email: firebaseUser?.email,
                     name: firebaseUser?.displayName,
                 });
+                updateUserData(firebaseUser.uid);
                 router.replace('/(tabs)');
             } else {
                 // No user
                 setUser(null);
                 router.replace('/(auth)/welcome');
             }
+            setLoading(false);
         });
         return () => unsub();
     }, [])
@@ -39,9 +55,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
             await signInWithEmailAndPassword(auth, email, password);
             return { success: true };
-        } catch (error: any) {
-            let msg = error.message;
-            return { success: false, msg }
+        }
+        // catch (error: any) {
+        //     let msg = error.message;
+        //     return { success: false, msg }
+        // }
+        catch (error: any) {
+            return { success: false, msg: getErrorMessage(error.code) };
         }
     };
 
@@ -54,9 +74,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 uid: response?.user?.uid,
             });
             return { success: true };
-        } catch (error: any) {
-            let msg = error.message;
-            return { success: false, msg }
+        }
+        // catch (error: any) {
+        //     let msg = error.message;
+        //     return { success: false, msg }
+        // }
+        catch (error: any) {
+            return { success: false, msg: getErrorMessage(error.code) };
         }
     };
 
@@ -75,10 +99,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 };
                 setUser({ ...userData });
             }
-        } catch (error: any) {
-            let msg = error.message;
-            console.log("error: ", error);
+        }
+        // catch (error: any) {
+        //     let msg = error.message;
+        //     console.log("error: ", error);
 
+        // }
+        catch (error) {
+            console.log("error: ", error);
         }
     };
 
@@ -87,14 +115,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser,
         login,
         register,
-        updateUserData
+        updateUserData,
     };
 
     return (
-        <AuthContext.Provider value={contextValue}>
+        <AuthContext.Provider value={contextValue} >
             {children}
         </AuthContext.Provider>
-    )
+
+    );
 
 };
 

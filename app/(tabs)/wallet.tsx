@@ -3,14 +3,14 @@ import React from 'react'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import Typo from '@/components/Typo'
 
-const Statistics = () => {
+const Wallet = () => {
   return (
     <ScreenWrapper>
-      <Typo>Statistics</Typo>
+      <Typo>Wallet</Typo>
     </ScreenWrapper>
   )
 }
 
-export default Statistics
+export default Wallet
 
 const styles = StyleSheet.create({})
