@@ -16,6 +16,8 @@ import { useAuth } from '@/context/authContext'
 import { updateUser } from '@/services/userService'
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import ImageUpload from '@/components/ImageUpload'
+import { createOrUpdateWallet } from '@/services/walletService'
 
 
 const walletModal = () => {
@@ -28,35 +30,28 @@ const walletModal = () => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const onPickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            // allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.5,
-        });
-
-        if (!result.canceled) {
-            // setUserData({ ...userData, image: result.assets[0] });
-            // console.log(result.assets[0]);
-        }
-    }
-
-
     const onsubmit = async () => {
         let { name, image } = wallet;
         if (!name.trim()) {
-            Alert.alert("User", "Please fill all the fields");
+            Alert.alert("Wallet", "Please fill all the fields");
             return;
         }
+
+        const data: WalletType = {
+            name,
+            image,
+            uid: user?.uid
+        };
+
         setLoading(true);
-        const res = await updateUser(user?.uid as string, wallet);
+        const res = await createOrUpdateWallet(data);
         setLoading(false);
+        // console.log("Result: ", res);
+
         if (res.success) {
-            updateUserData(user?.uid as string);
             router.back();
         } else {
-            Alert.alert("User", res.msg)
+            Alert.alert("Wallet", res.msg)
         }
 
     }
@@ -80,7 +75,13 @@ const walletModal = () => {
                         <Typo color={colors.neutral200}>
                             Wallet Icon
                         </Typo>
-                        <Input placeholder='Salary' value={wallet.name} onChangeText={(value) => setWallet({ ...wallet, name: value })} />
+                        {/* Image Input */}
+                        <ImageUpload
+                            file={wallet.image}
+                            onClear={() => setWallet({ ...wallet, image: null })}
+                            onSelect={file => setWallet({ ...wallet, image: file })}
+                            placeholder='Upload Image'
+                        />
                     </View>
 
                 </ScrollView>
