@@ -1,15 +1,17 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import Loading from '@/components/Loading'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import Typo from '@/components/Typo'
-import { verticalScale } from '@/utils/styling'
-import { colors, radius, spacingX, spacingY } from '@/constants/theme';
-import * as Icons from 'phosphor-react-native';
-import { useRouter } from 'expo-router'
+import WalletListItem from '@/components/WalletListItem'
+import { colors, radius, spacingX, spacingY } from '@/constants/theme'
 import { useAuth } from '@/context/authContext'
 import useFetchData from '@/hooks/useFetchData'
 import { WalletType } from '@/types'
+import { verticalScale } from '@/utils/styling'
+import { useRouter } from 'expo-router'
 import { orderBy, where } from 'firebase/firestore'
+import * as Icons from 'phosphor-react-native'
+import React from 'react'
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 const Wallet = () => {
 
@@ -17,17 +19,20 @@ const Wallet = () => {
 
   const { user } = useAuth();
 
-  const { data:wallets, error, loading } = useFetchData<WalletType>('wallets', [
+  const { data: wallets, error, loading } = useFetchData<WalletType>('wallets', [
     where("uid", "==", user?.uid),
     orderBy("created", "desc"),
   ]);
 
-  console.log("Wallets: ",wallets.length);
-  
+  // console.log("Wallets: ",wallets.length);
 
-  const getTotalBalance = () => {
-    return 2344
-  }
+
+  const getTotalBalance = () =>
+    wallets.reduce((total, item) => {
+      total = total + (item.amount || 0);
+      return total;
+    }, 0);
+
   return (
     <ScreenWrapper style={{ backgroundColor: colors.black }}>
       <View style={styles.container}>
@@ -36,7 +41,7 @@ const Wallet = () => {
         <View style={styles.balanceView}>
           <View style={{ alignItems: "center" }}>
             <Typo size={45} fontWeight={'500'}>
-              ${getTotalBalance()?.toFixed(2)}
+              ₹{getTotalBalance()?.toFixed(2)}
             </Typo>
             <Typo size={16} color={colors.neutral300}>
               Total Balance
@@ -54,6 +59,20 @@ const Wallet = () => {
               <Icons.PlusCircleIcon weight='fill' color={colors.primary} size={verticalScale(33)} />
             </TouchableOpacity>
           </View>
+
+          {/* Wallet List */}
+
+          {loading && <Loading />}
+
+          <FlatList
+            data={wallets}
+            renderItem={({ item, index }) => {
+              return (
+                <WalletListItem item={item} index={index} router={router} />
+              )
+            }}
+            contentContainerStyle={styles.listStyle}
+          />
         </View>
 
 
