@@ -26,6 +26,8 @@ const useFetchData = <T>(
                 };
             }) as T[];
             setData(fetchedData);
+            // console.log(fetchedData);
+            
             setLoading(false);
         }, (err) => {
             console.log("Error fetching data: ", err);
