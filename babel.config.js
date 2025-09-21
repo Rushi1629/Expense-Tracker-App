@@ -5,5 +5,8 @@ module.exports = function (api) {
       'babel-preset-expo',
       ['@babel/preset-react', { runtime: 'automatic' }],
     ],
+    plugins: [
+      'react-native-reanimated/plugin', // <-- MUST be last
+    ],
   };
 };
